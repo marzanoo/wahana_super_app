@@ -58,7 +58,7 @@ class AuthService {
 
     // Clear Local Data
     final prefs = await SharedPreferences.getInstance();
-    prefs.clear();
+    await prefs.clear();
     return true;
   }
 
@@ -72,29 +72,30 @@ class AuthService {
     final expiresAt = DateTime.parse(expiresAtStr);
     return DateTime.now().isBefore(expiresAt);
   }
+
   Future<void> _saveUserData(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString('token', user.token);
-    prefs.setInt('role', user.role);
-    prefs.setString('name', user.name);
-    prefs.setString('email', user.email);
-    prefs.setString('nik', user.nik);
-    prefs.setString('token_expires_at', user.tokenExpiresAt );
+    await prefs.setString('token', user.token);
+    await prefs.setInt('role', user.role);
+    await prefs.setString('name', user.name);
+    await prefs.setString('email', user.email);
+    await prefs.setString('nik', user.nik);
+    await prefs.setString('token_expires_at', user.tokenExpiresAt);
   }
 
   Future<void> _saveKaryawanData(KaryawanModel karyawan) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString('emp_id', karyawan.empId);
-    prefs.setString('emp_name', karyawan.empName);
-    prefs.setString('user_id_hris', karyawan.userIdHris);
-    prefs.setString('company', karyawan.company);
-    prefs.setString('position_title', karyawan.positionTitle);
-    prefs.setString('dept', karyawan.dept);
-    prefs.setString('supervisor_name', karyawan.supervisorName);
-    prefs.setString('email', karyawan.email);
-    prefs.setString('remarks', karyawan.remarks);
-    prefs.setString('created_at', karyawan.createdAt.toString());
-    prefs.setString('updated_at', karyawan.updatedAt.toString());
+    await prefs.setString('emp_id', karyawan.empId);
+    await prefs.setString('emp_name', karyawan.empName);
+    await prefs.setString('user_id_hris', karyawan.userIdHris);
+    await prefs.setString('company', karyawan.company);
+    await prefs.setString('position_title', karyawan.positionTitle);
+    await prefs.setString('dept', karyawan.dept);
+    await prefs.setString('supervisor_name', karyawan.supervisorName);
+    await prefs.setString('email', karyawan.email);
+    await prefs.setString('remarks', karyawan.remarks);
+    await prefs.setString('created_at', karyawan.createdAt.toString());
+    await prefs.setString('updated_at', karyawan.updatedAt.toString());
   }
 
   Future<KaryawanModel?> getKaryawan() async {
@@ -105,7 +106,10 @@ class AuthService {
       }
       final res = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/karyawan/me'),
-        headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
       );
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
