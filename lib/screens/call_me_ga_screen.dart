@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:super_app_wahana/services/auth_service.dart';
+import 'package:super_app_wahana/services/webview_session_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:image_picker/image_picker.dart';
@@ -36,16 +37,14 @@ class _CallMeGAState extends State<CallMeGaScreen> {
       debugPrint('Permission Photos: ${statuses[Permission.photos]}');
       debugPrint('Permission Storage: ${statuses[Permission.storage]}');
     } else if (Platform.isIOS) {
-      await [
-        Permission.camera,
-        Permission.photos,
-      ].request();
+      await [Permission.camera, Permission.photos].request();
     }
   }
 
   Future<void> _initializeController() async {
     try {
       await _requestPermissions();
+      await WebViewSessionService.prepareForCurrentUser();
       final token = await AuthService.getToken() ?? '';
 
       _controller = WebViewController()
@@ -65,7 +64,8 @@ class _CallMeGAState extends State<CallMeGaScreen> {
 
       // Setup file picker untuk Android
       if (Platform.isAndroid) {
-        final androidController = _controller!.platform as AndroidWebViewController;
+        final androidController =
+            _controller!.platform as AndroidWebViewController;
         await androidController.setOnShowFileSelector(_handleFilePicker);
         debugPrint('File selector handler registered');
       }
@@ -86,9 +86,9 @@ class _CallMeGAState extends State<CallMeGaScreen> {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading page: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading page: $e')));
       }
     }
   }
@@ -124,19 +124,22 @@ class _CallMeGAState extends State<CallMeGaScreen> {
                   padding: EdgeInsets.all(16.0),
                   child: Text(
                     'Select Image Source',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.camera_alt, color: Color(0xFFB3282D)),
+                  leading: const Icon(
+                    Icons.camera_alt,
+                    color: Color(0xFFB3282D),
+                  ),
                   title: const Text('Take Photo'),
                   onTap: () => Navigator.pop(context, 'camera'),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.photo_library, color: Color(0xFFB3282D)),
+                  leading: const Icon(
+                    Icons.photo_library,
+                    color: Color(0xFFB3282D),
+                  ),
                   title: const Text('Photo Library'),
                   onTap: () => Navigator.pop(context, 'gallery'),
                 ),
@@ -211,9 +214,7 @@ class _CallMeGAState extends State<CallMeGaScreen> {
           fontWeight: FontWeight.bold,
         ),
         backgroundColor: const Color(0xFFB3282D),
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
@@ -231,9 +232,7 @@ class _CallMeGAState extends State<CallMeGaScreen> {
             if (_controller != null) WebViewWidget(controller: _controller!),
             if (_isLoading)
               const Center(
-                child: CircularProgressIndicator(
-                  color: Color(0xFFB3282D),
-                ),
+                child: CircularProgressIndicator(color: Color(0xFFB3282D)),
               ),
           ],
         ),

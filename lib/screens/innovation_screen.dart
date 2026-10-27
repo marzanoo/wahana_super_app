@@ -4,7 +4,7 @@ class InnovationScreen extends StatefulWidget {
   const InnovationScreen({super.key});
 
   @override
-  _InnovationScreenState createState() => _InnovationScreenState();
+  State<InnovationScreen> createState() => _InnovationScreenState();
 }
 
 class _InnovationScreenState extends State<InnovationScreen> {

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:super_app_wahana/config/api_config.dart';
 import 'package:super_app_wahana/models/karyawan_model.dart';
 import 'package:super_app_wahana/models/user_model.dart';
+import 'package:super_app_wahana/services/webview_session_service.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
@@ -26,6 +27,7 @@ class AuthService {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         final user = UserModel.fromJson(data);
+        await _clearLocalSession();
         await _saveUserData(user);
         return user;
       } else {
@@ -48,17 +50,24 @@ class AuthService {
             'Authorization': 'Bearer $token',
           },
         );
-        if (res.statusCode != 200) {
-          throw Exception('Logout failed: ${res.body}');
-        }
+        // Logout lokal tetap dijalankan saat server sedang tidak dapat diakses.
+        // Token lama tidak boleh tertinggal di perangkat.
+        if (res.statusCode != 200) return _clearLocalSession();
       }
-    } catch (e) {
-      throw Exception('Error during logout: $e');
+    } catch (_) {
+      return _clearLocalSession();
     }
 
-    // Clear Local Data
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    return _clearLocalSession();
+  }
+
+  Future<bool> _clearLocalSession() async {
+    try {
+      await WebViewSessionService.clear();
+    } finally {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+    }
     return true;
   }
 

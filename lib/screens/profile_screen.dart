@@ -4,7 +4,7 @@ import '../services/auth_service.dart';
 import '../widgets/custom_header.dart';
 import 'login_screen.dart';
 
-class ProfileScreen extends StatefulWidget{
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
@@ -30,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadProfileData() async {
     final karyawanData = await AuthService().getKaryawan();
 
+    if (!mounted) return;
     setState(() {
       _name = karyawanData?.empName;
       _username = karyawanData?.userIdHris;
@@ -49,18 +50,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: const Text('Logout'),
         content: const Text('Apakah Anda Yakin Ingin Logout?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Ya')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Ya'),
+          ),
         ],
       ),
     );
 
     if (confirm == true) {
       await AuthService().logout();
+      if (!mounted) return;
       Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-              (route) => false
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
       );
     }
   }
@@ -68,10 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomHeader(
-        titleText: 'Profile',
-        showProfileIcon: false,
-      ),
+      appBar: CustomHeader(titleText: 'Profile', showProfileIcon: false),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -96,7 +101,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Center(
                   child: Text(
                     _name ?? 'Unknown',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -113,11 +121,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _logout,
                     icon: const Icon(Icons.logout, color: Colors.white),
-                    label: const Text('Logout', style: TextStyle(color: Colors.white)),
+                    label: const Text(
+                      'Logout',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFB3282D),
+                      backgroundColor: const Color(0xFFB3282D),
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ),

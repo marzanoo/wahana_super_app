@@ -4,7 +4,7 @@ class CarBookingScreen extends StatefulWidget {
   const CarBookingScreen({super.key});
 
   @override
-  _CarBookingScreenState createState() => _CarBookingScreenState();
+  State<CarBookingScreen> createState() => _CarBookingScreenState();
 }
 
 class _CarBookingScreenState extends State<CarBookingScreen> {

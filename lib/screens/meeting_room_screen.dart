@@ -4,7 +4,7 @@ class MeetingRoomScreen extends StatefulWidget {
   const MeetingRoomScreen({super.key});
 
   @override
-  _MeetingRoomScreenState createState() => _MeetingRoomScreenState();
+  State<MeetingRoomScreen> createState() => _MeetingRoomScreenState();
 }
 
 class _MeetingRoomScreenState extends State<MeetingRoomScreen> {

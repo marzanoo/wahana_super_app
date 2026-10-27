@@ -4,7 +4,7 @@ class ZoomBookingScreen extends StatefulWidget {
   const ZoomBookingScreen({super.key});
 
   @override
-  _ZoomBookingScreenState createState() => _ZoomBookingScreenState();
+  State<ZoomBookingScreen> createState() => _ZoomBookingScreenState();
 }
 
 class _ZoomBookingScreenState extends State<ZoomBookingScreen> {

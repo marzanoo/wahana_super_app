@@ -19,31 +19,33 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: titleText != null
           ? Text(
-        titleText!,
-        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-      )
-          : Image.asset(
-        'assets/logo_wag_white.png',
-        width: 48,
-        height: 48,
-      ),
+              titleText!,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            )
+          : Image.asset('assets/logo_wag_white.png', width: 48, height: 48),
       backgroundColor: const Color(0xFFB3282D),
       foregroundColor: Colors.white,
       elevation: 10,
-      shadowColor: Colors.black.withOpacity(0.3),
+      shadowColor: Colors.black.withValues(alpha: 0.3),
       actions: showProfileIcon
           ? [
-        IconButton(
-          icon: const Icon(Icons.person),
-          onPressed: onProfileTap ??
-                  () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                );
-              },
-        ),
-      ]
+              IconButton(
+                icon: const Icon(Icons.person),
+                onPressed:
+                    onProfileTap ??
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ProfileScreen(),
+                        ),
+                      );
+                    },
+              ),
+            ]
           : null,
     );
   }

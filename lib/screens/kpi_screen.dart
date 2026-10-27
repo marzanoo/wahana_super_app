@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:super_app_wahana/services/auth_service.dart';
+import 'package:super_app_wahana/services/webview_session_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class KpiScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class _KpiScreenState extends State<KpiScreen> {
 
   Future<void> _initializeController() async {
     try {
+      await WebViewSessionService.prepareForCurrentUser();
       final token = await AuthService.getToken() ?? '';
 
       _controller = WebViewController()
@@ -46,11 +48,10 @@ class _KpiScreenState extends State<KpiScreen> {
         setState(() {
           _isLoading = false;
         });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading page: $e')));
       }
-      // Optional: show error snackbar
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error loading page: $e')));
     }
   }
 
@@ -72,7 +73,11 @@ class _KpiScreenState extends State<KpiScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: Image.asset('assets/logo_wag_white.png', width: 36, height: 36)
+            child: Image.asset(
+              'assets/logo_wag_white.png',
+              width: 36,
+              height: 36,
+            ),
           ),
         ],
       ),
