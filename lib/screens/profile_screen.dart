@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/karyawan_model.dart';
 import '../services/auth_service.dart';
 import '../widgets/custom_header.dart';
 import 'login_screen.dart';
@@ -28,19 +29,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadProfileData() async {
-    final karyawanData = await AuthService().getKaryawan();
+    final loginName = await AuthService.getName();
+    final loginUsername = await AuthService.getUsername();
+    final loginNik = await AuthService.getNik();
+    final loginEmail = await AuthService.getEmail();
+    final cachedKaryawan = await AuthService.getKaryawanFromLocal();
 
     if (!mounted) return;
     setState(() {
-      _name = karyawanData?.empName;
-      _username = karyawanData?.userIdHris;
-      _nik = karyawanData?.empId;
-      _email = karyawanData?.email;
-      _dept = karyawanData?.dept;
-      _position = karyawanData?.positionTitle;
-      _company = karyawanData?.company;
-      _supervisorName = karyawanData?.supervisorName;
+      _applyProfileData(
+        cachedKaryawan,
+        fallbackName: loginName,
+        fallbackUsername: loginUsername,
+        fallbackNik: loginNik,
+        fallbackEmail: loginEmail,
+      );
     });
+
+    try {
+      final karyawanData = await AuthService().getKaryawan();
+      if (!mounted) return;
+      setState(() {
+        _applyProfileData(
+          karyawanData,
+          fallbackName: loginName,
+          fallbackUsername: loginUsername,
+          fallbackNik: loginNik,
+          fallbackEmail: loginEmail,
+        );
+      });
+    } catch (error) {
+      debugPrint('Gagal memperbarui profil karyawan: $error');
+    }
+  }
+
+  void _applyProfileData(
+    KaryawanModel? karyawan, {
+    String? fallbackName,
+    String? fallbackUsername,
+    String? fallbackNik,
+    String? fallbackEmail,
+  }) {
+    String? preferred(String? value, String? fallback) {
+      return value?.isNotEmpty == true ? value : fallback;
+    }
+
+    _name = preferred(karyawan?.empName, fallbackName);
+    _username = preferred(karyawan?.userIdHris, fallbackUsername);
+    _nik = preferred(karyawan?.empId, fallbackNik);
+    _email = preferred(karyawan?.email, fallbackEmail);
+    _dept = karyawan?.dept;
+    _position = karyawan?.positionTitle;
+    _company = karyawan?.company;
+    _supervisorName = karyawan?.supervisorName;
   }
 
   Future<void> _logout() async {

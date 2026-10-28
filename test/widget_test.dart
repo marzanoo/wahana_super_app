@@ -10,5 +10,7 @@ void main() {
     expect(find.text('Login'), findsNWidgets(2));
     expect(find.byType(TextField), findsNWidgets(2));
     expect(find.byType(ElevatedButton), findsOneWidget);
+    expect(find.text('Forgot password?'), findsNothing);
+    expect(find.text('SignUp'), findsNothing);
   });
 }

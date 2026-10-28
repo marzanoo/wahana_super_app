@@ -29,6 +29,8 @@ class AuthService {
         final user = UserModel.fromJson(data);
         await _clearLocalSession();
         await _saveUserData(user);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('username', username.trim());
         return user;
       } else {
         throw Exception('Login failed: ${res.body}');
@@ -133,6 +135,32 @@ class AuthService {
     }
   }
 
+  static Future<KaryawanModel?> getKaryawanFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final empId = prefs.getString('emp_id');
+
+    if (empId == null || empId.isEmpty) return null;
+
+    DateTime savedDate(String key) {
+      return DateTime.tryParse(prefs.getString(key) ?? '') ??
+          DateTime.fromMillisecondsSinceEpoch(0);
+    }
+
+    return KaryawanModel(
+      empId: empId,
+      empName: prefs.getString('emp_name') ?? '',
+      userIdHris: prefs.getString('user_id_hris') ?? '',
+      company: prefs.getString('company') ?? '',
+      positionTitle: prefs.getString('position_title') ?? '',
+      dept: prefs.getString('dept') ?? '',
+      supervisorName: prefs.getString('supervisor_name') ?? '',
+      email: prefs.getString('email') ?? '',
+      remarks: prefs.getString('remarks') ?? '',
+      createdAt: savedDate('created_at'),
+      updatedAt: savedDate('updated_at'),
+    );
+  }
+
   static Future<String?> getDeptFromLocal() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('dept');
@@ -161,5 +189,10 @@ class AuthService {
   static Future<String?> getNik() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('nik');
+  }
+
+  static Future<String?> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('username');
   }
 }

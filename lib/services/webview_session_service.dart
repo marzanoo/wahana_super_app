@@ -29,6 +29,13 @@ class WebViewSessionService {
   }
 
   static Future<void> _clearBrowserData() async {
+    // webview_flutter only registers a platform implementation on supported
+    // targets. Login/logout must still work on Windows, web, and unit tests,
+    // where no WebView implementation is available.
+    if (WebViewPlatform.instance == null) {
+      return;
+    }
+
     await WebViewCookieManager().clearCookies();
 
     final controller = WebViewController();

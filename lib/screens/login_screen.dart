@@ -138,39 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   fillColor: Colors.grey[100],
                 ),
               ),
-              const SizedBox(height: 16),
-
-              // Forgot Password & Sign Up
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      // TODO: Implement Forgot Password
-                    },
-                    child: const Text(
-                      'Forgot password?',
-                      style: TextStyle(
-                        color: Color(0xFFB71C1C),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // TODO: Implement Sign Up
-                    },
-                    child: const Text(
-                      'SignUp',
-                      style: TextStyle(
-                        color: Color(0xFFB71C1C),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
               // Login Button
               SizedBox(

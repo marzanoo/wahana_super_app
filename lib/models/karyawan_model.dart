@@ -26,19 +26,32 @@ class KaryawanModel {
   });
 
   factory KaryawanModel.fromJson(Map<String, dynamic> json) {
-    final data = json['data'] as Map<String, dynamic>;
+    final rawData = json['data'] ?? json;
+    if (rawData is! Map) {
+      throw const FormatException('Format data karyawan tidak valid');
+    }
+
+    final data = Map<String, dynamic>.from(rawData);
+
+    String value(String key) => data[key]?.toString().trim() ?? '';
+
+    DateTime dateValue(String key) {
+      return DateTime.tryParse(value(key)) ??
+          DateTime.fromMillisecondsSinceEpoch(0);
+    }
+
     return KaryawanModel(
-      empId: data['emp_id'],
-      empName: data['emp_name'],
-      userIdHris: data['user_id_hris'],
-      company: data['company'],
-      positionTitle: data['position_title'],
-      dept: data['dept'],
-      supervisorName: data['supervisor_name'],
-      email: data['email'],
-      remarks: data['remarks'],
-      createdAt: DateTime.parse(data['created_at']),
-      updatedAt: DateTime.parse(data['updated_at']),
+      empId: value('emp_id'),
+      empName: value('emp_name'),
+      userIdHris: value('user_id_hris'),
+      company: value('company'),
+      positionTitle: value('position_title'),
+      dept: value('dept'),
+      supervisorName: value('supervisor_name'),
+      email: value('email'),
+      remarks: value('remarks'),
+      createdAt: dateValue('created_at'),
+      updatedAt: dateValue('updated_at'),
     );
   }
 }

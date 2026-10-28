@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:super_app_wahana/services/auth_service.dart';
+import 'package:super_app_wahana/services/webview_download_service.dart';
 import 'package:super_app_wahana/services/webview_session_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -24,19 +25,29 @@ class _KpiScreenState extends State<KpiScreen> {
     try {
       await WebViewSessionService.prepareForCurrentUser();
       final token = await AuthService.getToken() ?? '';
+      if (!mounted) return;
 
-      _controller = WebViewController()
+      final controller = WebViewController();
+      controller
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setNavigationDelegate(
           NavigationDelegate(
-            onPageStarted: (url) => setState(() => _isLoading = true),
-            onPageFinished: (url) => setState(() => _isLoading = false),
+            onPageStarted: (url) {
+              if (mounted) setState(() => _isLoading = true);
+            },
+            onPageFinished: (url) async {
+              await WebViewDownloadService.injectInterceptor(controller);
+              if (mounted) setState(() => _isLoading = false);
+            },
           ),
-        )
-        ..loadRequest(
-          Uri.parse('http://124.243.134.244/kpi'), // Ganti sesuai sub-app
-          headers: {'Authorization': 'Bearer $token'},
         );
+
+      await WebViewDownloadService.register(controller, context);
+      _controller = controller;
+      await controller.loadRequest(
+        Uri.parse('http://124.243.134.244/kpi'), // Ganti sesuai sub-app
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
       if (mounted) {
         setState(() {

@@ -44,14 +44,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadUserData() async {
     final name = await AuthService.getName();
-    // final role = await AuthService.getRole();
-    final dept = await AuthService().getKaryawan();
+    final cachedKaryawan = await AuthService.getKaryawanFromLocal();
+
     if (!mounted) return;
     setState(() {
-      _name = name ?? 'Wahanian';
-      // _role = role;
-      _dept = dept?.dept;
+      _name = cachedKaryawan?.empName.isNotEmpty == true
+          ? cachedKaryawan!.empName
+          : (name?.isNotEmpty == true ? name : 'Wahanian');
+      _dept = cachedKaryawan?.dept;
     });
+
+    try {
+      final karyawan = await AuthService().getKaryawan();
+      if (!mounted || karyawan == null) return;
+      setState(() {
+        if (karyawan.empName.isNotEmpty) _name = karyawan.empName;
+        _dept = karyawan.dept;
+      });
+    } catch (error) {
+      debugPrint('Gagal memperbarui data karyawan: $error');
+    }
   }
 
   bool _hasAccess(String appName) {
@@ -123,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisCount: 3,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  childAspectRatio: 0.85,
+                  childAspectRatio: 0.72,
                   children: [
                     if (_hasAccess('Audit 6S'))
                       _buildAppCard(
@@ -227,83 +239,88 @@ class _HomeScreenState extends State<HomeScreen> {
         child: InkWell(
           onTap: enabled ? onTap : null,
           borderRadius: BorderRadius.circular(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Icon Container dengan efek modern
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: enabled
-                        ? const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0xFFD32F2F), Color(0xFFB3282D)],
-                          )
-                        : const LinearGradient(
-                            colors: [Color(0xFF9E9E9E), Color(0xFF757575)],
-                          ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: enabled
-                        ? [
-                            BoxShadow(
-                              color: const Color(
-                                0xFFB3282D,
-                              ).withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon Container dengan efek modern
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: enabled
+                          ? const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFFD32F2F), Color(0xFFB3282D)],
+                            )
+                          : const LinearGradient(
+                              colors: [Color(0xFF9E9E9E), Color(0xFF757575)],
                             ),
-                          ]
-                        : null,
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Icon(icon, color: Colors.white, size: 32),
-                      if (!enabled)
-                        Positioned(
-                          right: 6,
-                          bottom: 6,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black54,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Text(
-                              'Segera hadir',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 8,
-                                fontWeight: FontWeight.w600,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: enabled
+                          ? [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFFB3282D,
+                                ).withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Icon(icon, color: Colors.white, size: 32),
+                        if (!enabled)
+                          Positioned(
+                            right: 6,
+                            bottom: 6,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'Segera hadir',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              // Label outside the card
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: enabled
-                      ? const Color(0xFF333333)
-                      : const Color(0xFF757575),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  height: 1.2,
+                const SizedBox(height: 8),
+                // Label outside the card
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: enabled
+                        ? const Color(0xFF333333)
+                        : const Color(0xFF757575),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    height: 1.2,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

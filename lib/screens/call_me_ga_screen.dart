@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:super_app_wahana/services/auth_service.dart';
+import 'package:super_app_wahana/services/webview_download_service.dart';
 import 'package:super_app_wahana/services/webview_session_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
@@ -46,21 +47,27 @@ class _CallMeGAState extends State<CallMeGaScreen> {
       await _requestPermissions();
       await WebViewSessionService.prepareForCurrentUser();
       final token = await AuthService.getToken() ?? '';
+      if (!mounted) return;
 
-      _controller = WebViewController()
+      final controller = WebViewController();
+      controller
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setNavigationDelegate(
           NavigationDelegate(
             onPageStarted: (url) {
               debugPrint('Page started: $url');
-              setState(() => _isLoading = true);
+              if (mounted) setState(() => _isLoading = true);
             },
-            onPageFinished: (url) {
+            onPageFinished: (url) async {
               debugPrint('Page finished: $url');
-              setState(() => _isLoading = false);
+              await WebViewDownloadService.injectInterceptor(controller);
+              if (mounted) setState(() => _isLoading = false);
             },
           ),
         );
+
+      await WebViewDownloadService.register(controller, context);
+      _controller = controller;
 
       // Setup file picker untuk Android
       if (Platform.isAndroid) {
